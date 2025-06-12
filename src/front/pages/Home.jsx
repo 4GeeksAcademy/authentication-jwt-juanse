@@ -1,52 +1,33 @@
-import React, { useEffect } from "react"
-import rigoImageUrl from "../assets/img/rigo-baby.jpg";
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export const Home = () => {
-
-	const { store, dispatch } = useGlobalReducer()
-
-	const loadMessage = async () => {
-		try {
-			const backendUrl = import.meta.env.VITE_BACKEND_URL
-
-			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
-
-			const response = await fetch(backendUrl + "/api/hello")
-			const data = await response.json()
-
-			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
-
-			return data
-
-		} catch (error) {
-			if (error.message) throw new Error(
-				`Could not fetch the message from the backend.
-				Please check if the backend is running and the backend port is public.`
-			);
-		}
-
-	}
-
-	useEffect(() => {
-		loadMessage()
-	}, [])
-
+	const { user } = useAuth();
 	return (
-		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				{store.message ? (
-					<span>{store.message}</span>
-				) : (
-					<span className="text-danger">
-						Loading message from the backend (make sure your python 🐍 backend is running)...
-					</span>
-				)}
+		<div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-dark text-light">
+			<div className="row w-100 justify-content-center">
+				<div className="col-12 d-flex flex-column align-items-center justify-content-center">
+					{!user ? (
+						<div className="text-center p-5 rounded bg-secondary bg-opacity-75 shadow-lg">
+							<h1 className="display-4 fw-bold mb-3">No user</h1>
+							<p className="lead">
+								Por favor inicia sesión o regístrate para continuar.
+							</p>
+						</div>
+					) : (
+						<div className="text-center p-5 rounded bg-secondary bg-opacity-75 shadow-lg">
+							<h1 className="display-4 fw-bold mb-3">
+								Bienvenido, {user.username}!
+							</h1>
+							<p className="lead">Has iniciado sesión correctamente.</p>
+							<Link to="/private">
+								<button className="btn btn-primary">Ir a la ruta privada</button>
+							</Link>
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
-}; 
+};
